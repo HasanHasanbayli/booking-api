@@ -5,22 +5,30 @@ namespace Booking.Infrastructure.Repositories;
 
 public class InMemoryHomeRepository : IHomeRepository
 {
-    private static readonly IReadOnlyCollection<Home> Homes =
-    [
-        new(1, "Home 1", new HashSet<DateOnly>
-        {
-            new(2025, 7, 15),
-            new(2025, 7, 16),
-            new(2025, 7, 17)
-        }),
-        new(1, "Home 2", new HashSet<DateOnly>
-        {
-            new(2025, 7, 17),
-            new(2025, 7, 18)
-        })
-    ];
+    public InMemoryHomeRepository()
+    {
+        LoadDataWhileStarting();
+    }
 
-    public Task<IReadOnlyCollection<Home>> GetAllAsync(CancellationToken ct)
+    private static readonly HashSet<Home> Homes = [];
+
+    private void LoadDataWhileStarting()
+    {
+        if (Homes.Count == 0)
+        {
+            for (int i = 0; i < 20; i++)
+            {
+                Homes.Add(new Home(i, $"Home {i}", new HashSet<DateOnly>
+                {
+                    new(2025, 7, 15),
+                    new(2025, 7, 16),
+                    new(2025, 7, 17)
+                }));
+            }
+        }
+    }
+
+    public Task<HashSet<Home>> GetAllAsync(CancellationToken ct)
     {
         return Task.FromResult(Homes);
     }

@@ -3,15 +3,8 @@ using Booking.Domain.Entities;
 
 namespace Booking.Application.UseCases;
 
-public class GetAvailableHomesUseCase
+public class GetAvailableHomesUseCase(IHomeRepository repository)
 {
-    private readonly IHomeRepository _repository;
-
-    public GetAvailableHomesUseCase(IHomeRepository repository)
-    {
-        _repository = repository;
-    }
-
     public async Task<IReadOnlyCollection<Home>> ExecuteAsync(
         DateOnly startDate,
         DateOnly endDate,
@@ -25,7 +18,7 @@ public class GetAvailableHomesUseCase
             .Select(startDate.AddDays)
             .ToHashSet();
 
-        var homes = await _repository.GetAllAsync(ct);
+        var homes = await repository.GetAllAsync(ct);
 
         return homes.Where(h => h.IsAvailableFor(requestedDates)).ToList();
     }
