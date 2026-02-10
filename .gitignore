@@ -1,0 +1,13 @@
+﻿**/.vs
+**/.vscode
+**/.idea
+**/bin
+**/obj
+**/*.*proj.user
+*.txt
+**/*.*DotSettings.user
+**/*.*pubxml
+**/*.*pubxml.user
+
+# Ignore everything inside wwwroot/User
+**/wwwroot/User/*
