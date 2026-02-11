@@ -21,12 +21,9 @@ public static class AvailableHomesEndpoint
                 {
                     var slots = new List<string>();
 
-                    foreach (var date in home.AvailableSlots)
+                    foreach (var date in home.GetAvailableInRange(startDate, endDate))
                     {
-                        if (date >= startDate && date <= endDate)
-                        {
-                            slots.Add(date.ToString("yyyy-MM-dd"));
-                        }
+                        slots.Add(date.ToString("yyyy-MM-dd"));
                     }
 
                     result.Add(new HomeDto(HomeId: home.Id, HomeName: home.Name, AvailableSlots: slots));

@@ -1,4 +1,3 @@
-using System.Collections.Immutable;
 using Booking.Application.Abstractions;
 using Booking.Domain.Entities;
 
@@ -6,34 +5,42 @@ namespace Booking.Infrastructure.Repositories;
 
 public sealed class InMemoryHomeRepository : IHomeRepository
 {
-    private static readonly ImmutableArray<Home> Homes;
-    private static readonly DateOnly Now = DateOnly.FromDateTime(DateTime.UtcNow);
+    private static readonly Dictionary<int, Home> Homes;
 
     static InMemoryHomeRepository()
     {
-        var builder = ImmutableArray.CreateBuilder<Home>();
+        Homes = new Dictionary<int, Home>(capacity: 1000);
 
-        for (int i = 1; i <= 4; i++)
+        for (int i = 1; i <= 1000; i++)
         {
-            builder.Add(new Home(
+            Homes[i] = new Home(
                 id: i,
                 name: $"Home {i}",
-                availableSlots: GenerateSlots()));
+                availableSlots: GenerateSlots());
         }
-
-        Homes = builder.ToImmutable();
     }
 
-    public Task<IReadOnlyList<Home>> GetAllAsync(CancellationToken ct)
+    // Fast enumeration for filtering
+    public Task<IReadOnlyCollection<Home>> GetAllAsync(CancellationToken ct)
     {
-        return Task.FromResult<IReadOnlyList<Home>>(Homes);
+        return Task.FromResult<IReadOnlyCollection<Home>>(Homes.Values);
+    }
+
+    // Useful O(1) lookup
+    public Task<Home?> GetByIdAsync(int id, CancellationToken ct)
+    {
+        Homes.TryGetValue(id, out var home);
+
+        return Task.FromResult(home);
     }
 
     private static IEnumerable<DateOnly> GenerateSlots()
     {
+        var start = DateOnly.FromDateTime(DateTime.UtcNow);
+
         for (int i = 0; i < 30; i++)
         {
-            yield return Now.AddDays(i);
+            yield return start.AddDays(i);
         }
     }
 }

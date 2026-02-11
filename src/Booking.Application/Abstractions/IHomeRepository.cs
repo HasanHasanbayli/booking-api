@@ -4,5 +4,5 @@ namespace Booking.Application.Abstractions;
 
 public interface IHomeRepository
 {
-    Task<IReadOnlyList<Home>> GetAllAsync(CancellationToken ct);
+    Task<IReadOnlyCollection<Home>> GetAllAsync(CancellationToken ct);
 }
