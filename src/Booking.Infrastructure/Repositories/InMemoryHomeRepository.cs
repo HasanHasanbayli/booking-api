@@ -7,12 +7,13 @@ namespace Booking.Infrastructure.Repositories;
 public sealed class InMemoryHomeRepository : IHomeRepository
 {
     private static readonly ImmutableArray<Home> Homes;
+    private static readonly DateOnly Now = DateOnly.FromDateTime(DateTime.UtcNow);
 
     static InMemoryHomeRepository()
     {
         var builder = ImmutableArray.CreateBuilder<Home>();
 
-        for (int i = 1; i <= 10; i++)
+        for (int i = 1; i <= 4; i++)
         {
             builder.Add(new Home(
                 id: i,
@@ -32,7 +33,7 @@ public sealed class InMemoryHomeRepository : IHomeRepository
     {
         for (int i = 0; i < 30; i++)
         {
-            yield return new DateOnly(2025, 7, 1).AddDays(i);
+            yield return Now.AddDays(i);
         }
     }
 }
