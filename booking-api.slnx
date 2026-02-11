@@ -5,4 +5,5 @@
     <Project Path="src/Booking.Domain/Booking.Domain.csproj" />
     <Project Path="src/Booking.Infrastructure/Booking.Infrastructure.csproj" />
   </Folder>
+  <Folder Name="/test/" />
 </Solution>

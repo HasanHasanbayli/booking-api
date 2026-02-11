@@ -7,7 +7,7 @@ public sealed class InMemoryHomeRepository : IHomeRepository
 {
     private static readonly Dictionary<int, Home> Homes;
     private static readonly Dictionary<DateOnly, HashSet<int>> DateIndex;
-    private const int Capacity = 100;
+    private const int Capacity = 100_000;
 
     static InMemoryHomeRepository()
     {
@@ -76,7 +76,7 @@ public sealed class InMemoryHomeRepository : IHomeRepository
     {
         var start = DateOnly.FromDateTime(DateTime.UtcNow);
 
-        for (int i = 0; i < 10; i++)
+        for (int i = 0; i < 30; i++)
         {
             yield return start.AddDays(i + num);
         }
