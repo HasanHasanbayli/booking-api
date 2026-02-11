@@ -7,16 +7,16 @@ public sealed class InMemoryHomeRepository : IHomeRepository
 {
     private static readonly Dictionary<int, Home> Homes;
     private static readonly Dictionary<DateOnly, HashSet<int>> DateIndex;
-    private const int Capacity = 100_000;
+    private const int Capacity = 10;
 
     static InMemoryHomeRepository()
     {
         Homes = new Dictionary<int, Home>(Capacity);
         DateIndex = new Dictionary<DateOnly, HashSet<int>>();
 
-        for (int i = 1; i <= Capacity; i++)
+        for (int i = 0; i <= Capacity; i++)
         {
-            var slots = GenerateSlots(i).ToArray();
+            var slots = GenerateSlots().ToArray();
 
             var home = new Home(
                 id: i,
@@ -72,13 +72,15 @@ public sealed class InMemoryHomeRepository : IHomeRepository
         return resultSet.Select(id => Homes[id]).ToList();
     }
 
-    private static IEnumerable<DateOnly> GenerateSlots(int num)
+    private static IEnumerable<DateOnly> GenerateSlots()
     {
         var start = DateOnly.FromDateTime(DateTime.UtcNow);
+        var random = new Random();
 
-        for (int i = 0; i < 30; i++)
+        for (int i = 0; i < 5; i++)
         {
-            yield return start.AddDays(i + num);
+            int randomDays = random.Next(0, 5);
+            yield return start.AddDays(randomDays);
         }
     }
 }

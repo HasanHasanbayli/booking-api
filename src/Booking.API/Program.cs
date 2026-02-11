@@ -27,3 +27,5 @@ app.UseHttpsRedirection();
 app.MapAvailableHomes();
 
 app.Run();
+
+public partial class Program { } // This is needed for integration testing with WebApplicationFactory<Program>
