@@ -6,12 +6,13 @@ namespace Booking.Infrastructure.Repositories;
 public sealed class InMemoryHomeRepository : IHomeRepository
 {
     private static readonly Dictionary<int, Home> Homes;
+    private const int Capacity = 10;
 
     static InMemoryHomeRepository()
     {
-        Homes = new Dictionary<int, Home>(capacity: 1000);
+        Homes = new Dictionary<int, Home>(capacity: Capacity);
 
-        for (int i = 1; i <= 1000; i++)
+        for (int i = 1; i <= Capacity; i++)
         {
             Homes[i] = new Home(
                 id: i,
