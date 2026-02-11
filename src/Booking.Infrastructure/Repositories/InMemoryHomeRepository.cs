@@ -14,28 +14,7 @@ public sealed class InMemoryHomeRepository : IHomeRepository
         Homes = new Dictionary<int, Home>(Capacity);
         DateIndex = new Dictionary<DateOnly, HashSet<int>>();
 
-        for (int i = 0; i <= Capacity; i++)
-        {
-            var slots = GenerateSlots().ToArray();
-
-            var home = new Home(
-                id: i,
-                name: $"Home {i}",
-                availableSlots: slots);
-
-            Homes[i] = home;
-
-            foreach (var date in slots)
-            {
-                if (!DateIndex.TryGetValue(date, out var homeSet))
-                {
-                    homeSet = [];
-                    DateIndex[date] = homeSet;
-                }
-
-                homeSet.Add(i);
-            }
-        }
+        SeedDeterministicHomes();
     }
 
     public IReadOnlyCollection<Home> GetAvailableAsync(DateOnly startDate, DateOnly endDate)
@@ -72,15 +51,37 @@ public sealed class InMemoryHomeRepository : IHomeRepository
         return resultSet.Select(id => Homes[id]).ToList();
     }
 
-    private static IEnumerable<DateOnly> GenerateSlots()
+    private static void SeedDeterministicHomes()
     {
-        var start = DateOnly.FromDateTime(DateTime.UtcNow);
-        var random = new Random();
+        var january1 = new DateOnly(2026, 1, 1);
+        var july15 = new DateOnly(2026, 7, 15);
+        var july16 = new DateOnly(2026, 7, 16);
+        var july17 = new DateOnly(2026, 7, 17);
+        var july18 = new DateOnly(2026, 7, 18);
+        var december31 = new DateOnly(2026, 12, 31);
 
-        for (int i = 0; i < 5; i++)
+        var homes = new[]
         {
-            int randomDays = random.Next(0, 5);
-            yield return start.AddDays(randomDays);
+            new Home(1, "Valid Home", [july15, july16]),
+            new Home(2, "Invalid Home", [july15, july17]),
+            new Home(3, "Extra Days Home", [july15, july16, july17, july18]),
+            new Home(4, "Other Dates", [july17])
+        };
+
+        foreach (var home in homes)
+        {
+            Homes[home.Id] = home;
+
+            foreach (var date in home.GetAvailableInRange(january1, december31))
+            {
+                if (!DateIndex.TryGetValue(date, out var homeSet))
+                {
+                    homeSet = [];
+                    DateIndex[date] = homeSet;
+                }
+
+                homeSet.Add(home.Id);
+            }
         }
     }
 }
