@@ -1,0 +1,39 @@
+using Booking.API.Contracts;
+using Booking.Application.UseCases;
+
+namespace Booking.API.Endpoints;
+
+public static class AvailableHomesEndpoint
+{
+    public static void MapAvailableHomes(this IEndpointRouteBuilder app)
+    {
+        app.MapGet("/api/available-homes", async (
+                DateOnly startDate,
+                DateOnly endDate,
+                GetAvailableHomesUseCase useCase,
+                CancellationToken ct) =>
+            {
+                var homes = await useCase.ExecuteAsync(startDate, endDate, ct);
+
+                var result = new List<HomeDto>(homes.Count);
+
+                foreach (var home in homes)
+                {
+                    var slots = new List<string>();
+
+                    foreach (var date in home.AvailableSlots)
+                    {
+                        if (date >= startDate && date <= endDate)
+                        {
+                            slots.Add(date.ToString("yyyy-MM-dd"));
+                        }
+                    }
+
+                    result.Add(new HomeDto(HomeId: home.Id, HomeName: home.Name, AvailableSlots: slots));
+                }
+
+                return Results.Ok(new AvailableHomeResponse(Status: "OK", Homes: result));
+            })
+            .WithName("GetAvailableHomes");
+    }
+}

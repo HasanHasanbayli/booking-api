@@ -13,13 +13,18 @@ public class GetAvailableHomesUseCase(IHomeRepository repository)
         if (startDate > endDate)
             throw new ArgumentException("Invalid date range");
 
-        var requestedDates = Enumerable
-            .Range(0, endDate.DayNumber - startDate.DayNumber + 1)
-            .Select(startDate.AddDays)
-            .ToHashSet();
-
         var homes = await repository.GetAllAsync(ct);
 
-        return homes.Where(h => h.IsAvailableFor(requestedDates)).ToList();
+        var result = new List<Home>(homes.Count);
+
+        foreach (var home in homes)
+        {
+            if (home.IsAvailableFor(startDate, endDate))
+            {
+                result.Add(home);
+            }
+        }
+
+        return result;
     }
 }

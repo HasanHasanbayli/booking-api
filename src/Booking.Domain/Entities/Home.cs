@@ -1,20 +1,31 @@
 namespace Booking.Domain.Entities;
 
-public class Home
+public sealed class Home
 {
     public int Id { get; }
     public string Name { get; }
-    public IReadOnlySet<DateOnly> AvailableSlots { get; }
 
-    public Home(int id, string name, IReadOnlySet<DateOnly> availableSlots)
+    private readonly HashSet<DateOnly> _availableSlots;
+
+    public Home(int id, string name, IEnumerable<DateOnly> availableSlots)
     {
         Id = id;
         Name = name;
-        AvailableSlots = availableSlots;
+        _availableSlots = new HashSet<DateOnly>(availableSlots);
     }
 
-    public bool IsAvailableFor(IReadOnlySet<DateOnly> requestedDates)
+    public IReadOnlyCollection<DateOnly> AvailableSlots => _availableSlots;
+
+    public bool IsAvailableFor(DateOnly startDate, DateOnly endDate)
     {
-        return requestedDates.All(AvailableSlots.Contains);
+        for (var date = startDate; date <= endDate; date = date.AddDays(1))
+        {
+            if (!_availableSlots.Contains(date))
+            {
+                return false;
+            }
+        }
+
+        return true;
     }
 }

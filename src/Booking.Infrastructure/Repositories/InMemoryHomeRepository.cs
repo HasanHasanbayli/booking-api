@@ -1,35 +1,38 @@
+using System.Collections.Immutable;
 using Booking.Application.Abstractions;
 using Booking.Domain.Entities;
 
 namespace Booking.Infrastructure.Repositories;
 
-public class InMemoryHomeRepository : IHomeRepository
+public sealed class InMemoryHomeRepository : IHomeRepository
 {
-    public InMemoryHomeRepository()
-    {
-        LoadDataWhileStarting();
-    }
+    private static readonly ImmutableArray<Home> Homes;
 
-    private static readonly HashSet<Home> Homes = [];
-
-    private void LoadDataWhileStarting()
+    static InMemoryHomeRepository()
     {
-        if (Homes.Count == 0)
+        var builder = ImmutableArray.CreateBuilder<Home>();
+
+        for (int i = 1; i <= 10; i++)
         {
-            for (int i = 0; i < 20; i++)
-            {
-                Homes.Add(new Home(i, $"Home {i}", new HashSet<DateOnly>
-                {
-                    new(2025, 7, 15),
-                    new(2025, 7, 16),
-                    new(2025, 7, 17)
-                }));
-            }
+            builder.Add(new Home(
+                id: i,
+                name: $"Home {i}",
+                availableSlots: GenerateSlots()));
         }
+
+        Homes = builder.ToImmutable();
     }
 
-    public Task<HashSet<Home>> GetAllAsync(CancellationToken ct)
+    public Task<IReadOnlyList<Home>> GetAllAsync(CancellationToken ct)
     {
-        return Task.FromResult(Homes);
+        return Task.FromResult<IReadOnlyList<Home>>(Homes);
+    }
+
+    private static IEnumerable<DateOnly> GenerateSlots()
+    {
+        for (int i = 0; i < 30; i++)
+        {
+            yield return new DateOnly(2025, 7, 1).AddDays(i);
+        }
     }
 }
