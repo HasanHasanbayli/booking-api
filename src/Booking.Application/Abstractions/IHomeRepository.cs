@@ -4,5 +4,5 @@ namespace Booking.Application.Abstractions;
 
 public interface IHomeRepository
 {
-    Task<IReadOnlyCollection<Home>> GetAllAsync(CancellationToken ct);
+    IReadOnlyCollection<Home> GetAvailableAsync(DateOnly startDate, DateOnly endDate);
 }

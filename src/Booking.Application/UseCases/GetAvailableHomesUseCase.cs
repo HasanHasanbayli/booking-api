@@ -5,15 +5,14 @@ namespace Booking.Application.UseCases;
 
 public class GetAvailableHomesUseCase(IHomeRepository repository)
 {
-    public async Task<IReadOnlyCollection<Home>> ExecuteAsync(
+    public IReadOnlyCollection<Home> ExecuteAsync(
         DateOnly startDate,
-        DateOnly endDate,
-        CancellationToken ct)
+        DateOnly endDate)
     {
         if (startDate > endDate)
             throw new ArgumentException("Invalid date range");
 
-        var homes = await repository.GetAllAsync(ct);
+        var homes =  repository.GetAvailableAsync(startDate, endDate);
 
         var result = new List<Home>(homes.Count);
 

@@ -6,42 +6,79 @@ namespace Booking.Infrastructure.Repositories;
 public sealed class InMemoryHomeRepository : IHomeRepository
 {
     private static readonly Dictionary<int, Home> Homes;
-    private const int Capacity = 10;
+    private static readonly Dictionary<DateOnly, HashSet<int>> DateIndex;
+    private const int Capacity = 100;
 
     static InMemoryHomeRepository()
     {
-        Homes = new Dictionary<int, Home>(capacity: Capacity);
+        Homes = new Dictionary<int, Home>(Capacity);
+        DateIndex = new Dictionary<DateOnly, HashSet<int>>();
 
         for (int i = 1; i <= Capacity; i++)
         {
-            Homes[i] = new Home(
+            var slots = GenerateSlots(i).ToArray();
+
+            var home = new Home(
                 id: i,
                 name: $"Home {i}",
-                availableSlots: GenerateSlots());
+                availableSlots: slots);
+
+            Homes[i] = home;
+
+            foreach (var date in slots)
+            {
+                if (!DateIndex.TryGetValue(date, out var homeSet))
+                {
+                    homeSet = [];
+                    DateIndex[date] = homeSet;
+                }
+
+                homeSet.Add(i);
+            }
         }
     }
 
-    // Fast enumeration for filtering
-    public Task<IReadOnlyCollection<Home>> GetAllAsync(CancellationToken ct)
+    public IReadOnlyCollection<Home> GetAvailableAsync(DateOnly startDate, DateOnly endDate)
     {
-        return Task.FromResult<IReadOnlyCollection<Home>>(Homes.Values);
+        HashSet<int>? resultSet = null;
+
+        for (var date = startDate; date <= endDate; date = date.AddDays(1))
+        {
+            if (!DateIndex.TryGetValue(date, out var homesForDate))
+            {
+                return [];
+            }
+
+            if (resultSet == null)
+            {
+                resultSet = new HashSet<int>(homesForDate);
+            }
+            else
+            {
+                resultSet.IntersectWith(homesForDate);
+            }
+
+            if (resultSet.Count == 0)
+            {
+                break;
+            }
+        }
+
+        if (resultSet == null || resultSet.Count == 0)
+        {
+            return [];
+        }
+
+        return resultSet.Select(id => Homes[id]).ToList();
     }
 
-    // Useful O(1) lookup
-    public Task<Home?> GetByIdAsync(int id, CancellationToken ct)
-    {
-        Homes.TryGetValue(id, out var home);
-
-        return Task.FromResult(home);
-    }
-
-    private static IEnumerable<DateOnly> GenerateSlots()
+    private static IEnumerable<DateOnly> GenerateSlots(int num)
     {
         var start = DateOnly.FromDateTime(DateTime.UtcNow);
 
-        for (int i = 0; i < 30; i++)
+        for (int i = 0; i < 10; i++)
         {
-            yield return start.AddDays(i);
+            yield return start.AddDays(i + num);
         }
     }
 }
