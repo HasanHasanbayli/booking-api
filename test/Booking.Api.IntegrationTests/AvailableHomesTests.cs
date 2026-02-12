@@ -28,7 +28,7 @@ public class AvailableHomesTests(CustomWebApplicationFactory factory) : IClassFi
     }
 
     [Fact]
-    public async Task StartDateAfterEndDate_ReturnsInternalServerError()
+    public async Task StartDateAfterEndDate_ReturnsBadRequestError()
     {
         // Act
         var startDate = new DateOnly(2026, 7, 18);

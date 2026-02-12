@@ -7,12 +7,12 @@ public static class AvailableHomesEndpoint
 {
     public static void MapAvailableHomes(this IEndpointRouteBuilder app)
     {
-        app.MapGet("/api/available-homes", (
+        app.MapGet("/api/available-homes", async (
                 DateOnly startDate,
                 DateOnly endDate,
                 GetAvailableHomesUseCase useCase) =>
             {
-                var homes = useCase.ExecuteAsync(startDate, endDate);
+                var homes = await useCase.ExecuteAsync(startDate, endDate);
 
                 var result = new List<HomeDto>(homes.Count);
 

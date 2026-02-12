@@ -6,14 +6,14 @@ namespace Booking.Application.UseCases;
 
 public class GetAvailableHomesUseCase(IHomeRepository repository)
 {
-    public IReadOnlyCollection<Home> ExecuteAsync(
+    public async Task<IReadOnlyCollection<Home>> ExecuteAsync(
         DateOnly startDate,
         DateOnly endDate)
     {
         if (startDate > endDate)
             throw new BadHttpRequestException("Invalid date range");
 
-        var homes =  repository.GetAvailableAsync(startDate, endDate);
+        var homes = await repository.GetAvailableAsync(startDate, endDate);
 
         var result = new List<Home>(homes.Count);
 

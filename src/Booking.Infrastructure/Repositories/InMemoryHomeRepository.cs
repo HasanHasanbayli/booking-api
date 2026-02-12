@@ -17,7 +17,7 @@ public sealed class InMemoryHomeRepository : IHomeRepository
         SeedDeterministicHomes();
     }
 
-    public IReadOnlyCollection<Home> GetAvailableAsync(DateOnly startDate, DateOnly endDate)
+    public Task<IReadOnlyCollection<Home>> GetAvailableAsync(DateOnly startDate, DateOnly endDate)
     {
         HashSet<int>? resultSet = null;
 
@@ -25,7 +25,7 @@ public sealed class InMemoryHomeRepository : IHomeRepository
         {
             if (!DateIndex.TryGetValue(date, out var homesForDate))
             {
-                return [];
+                return Task.FromResult<IReadOnlyCollection<Home>>([]);
             }
 
             if (resultSet == null)
@@ -45,10 +45,10 @@ public sealed class InMemoryHomeRepository : IHomeRepository
 
         if (resultSet == null || resultSet.Count == 0)
         {
-            return [];
+            return Task.FromResult<IReadOnlyCollection<Home>>([]);
         }
 
-        return resultSet.Select(id => Homes[id]).ToList();
+        return Task.FromResult<IReadOnlyCollection<Home>>(resultSet.Select(id => Homes[id]).ToList());
     }
 
     private static void SeedDeterministicHomes()
