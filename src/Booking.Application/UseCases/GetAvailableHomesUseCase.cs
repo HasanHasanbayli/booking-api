@@ -1,5 +1,6 @@
 using Booking.Application.Abstractions;
 using Booking.Domain.Entities;
+using Microsoft.AspNetCore.Http;
 
 namespace Booking.Application.UseCases;
 
@@ -10,7 +11,7 @@ public class GetAvailableHomesUseCase(IHomeRepository repository)
         DateOnly endDate)
     {
         if (startDate > endDate)
-            throw new ArgumentException("Invalid date range");
+            throw new BadHttpRequestException("Invalid date range");
 
         var homes =  repository.GetAvailableAsync(startDate, endDate);
 

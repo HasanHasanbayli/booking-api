@@ -53,26 +53,27 @@ public sealed class InMemoryHomeRepository : IHomeRepository
 
     private static void SeedDeterministicHomes()
     {
-        var january1 = new DateOnly(2026, 1, 1);
         var july15 = new DateOnly(2026, 7, 15);
         var july16 = new DateOnly(2026, 7, 16);
         var july17 = new DateOnly(2026, 7, 17);
         var july18 = new DateOnly(2026, 7, 18);
-        var december31 = new DateOnly(2026, 12, 31);
+        var july20 = new DateOnly(2026, 7, 20);
+        var july21 = new DateOnly(2026, 7, 21);
 
         var homes = new[]
         {
             new Home(1, "Valid Home", [july15, july16]),
             new Home(2, "Invalid Home", [july15, july17]),
             new Home(3, "Extra Days Home", [july15, july16, july17, july18]),
-            new Home(4, "Other Dates", [july17])
+            new Home(4, "Other Dates", [july17]),
+            new Home(5, "Invalid Home 2", [july18, july20, july21])
         };
 
         foreach (var home in homes)
         {
             Homes[home.Id] = home;
 
-            foreach (var date in home.GetAvailableInRange(january1, december31))
+            foreach (var date in home.AvailableSlots)
             {
                 if (!DateIndex.TryGetValue(date, out var homeSet))
                 {
