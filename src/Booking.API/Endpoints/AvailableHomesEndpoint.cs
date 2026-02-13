@@ -12,23 +12,19 @@ public static class AvailableHomesEndpoint
                 DateOnly endDate,
                 GetAvailableHomesUseCase useCase) =>
             {
-                var homes = await useCase.ExecuteAsync(startDate, endDate);
-
-                var result = new List<HomeDto>(homes.Count);
-
-                foreach (var home in homes)
-                {
-                    var slots = new List<string>();
-
-                    foreach (var date in home.GetAvailableInRange(startDate, endDate))
+                var homes = await useCase.ExecuteAsync(startDate, endDate)
+                    .Select(h =>
                     {
-                        slots.Add(date.ToString("yyyy-MM-dd"));
-                    }
+                        var slots = h.AvailableSlots.Select(s => s.ToString("yyyy-MM-dd")).ToList();
 
-                    result.Add(new HomeDto(HomeId: home.Id, HomeName: home.Name, AvailableSlots: slots));
-                }
+                        return new HomeDto(
+                            HomeId: h.Id,
+                            HomeName: h.Name,
+                            AvailableSlots: slots);
+                    })
+                    .ToListAsync();
 
-                return Results.Ok(new AvailableHomeResponse(Status: "OK", Homes: result));
+                return Results.Ok(new AvailableHomeResponse(Status: "OK", Homes: homes));
             })
             .WithName("GetAvailableHomes");
     }

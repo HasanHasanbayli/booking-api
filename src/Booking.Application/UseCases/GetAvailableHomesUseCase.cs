@@ -6,7 +6,7 @@ namespace Booking.Application.UseCases;
 
 public class GetAvailableHomesUseCase(IHomeRepository repository)
 {
-    public async Task<IReadOnlyCollection<Home>> ExecuteAsync(
+    public async IAsyncEnumerable<Home> ExecuteAsync(
         DateOnly startDate,
         DateOnly endDate)
     {
@@ -15,16 +15,9 @@ public class GetAvailableHomesUseCase(IHomeRepository repository)
 
         var homes = await repository.GetAvailableAsync(startDate, endDate);
 
-        var result = new List<Home>(homes.Count);
-
-        foreach (var home in homes)
+        foreach (var home in homes.Where(h => h.IsAvailableFor(startDate, endDate)))
         {
-            if (home.IsAvailableFor(startDate, endDate))
-            {
-                result.Add(home);
-            }
+            yield return home;
         }
-
-        return result;
     }
 }

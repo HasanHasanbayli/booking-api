@@ -8,25 +8,23 @@ public sealed class Home(int id, string name, IEnumerable<DateOnly> availableSlo
 
     public bool IsAvailableFor(DateOnly startDate, DateOnly endDate)
     {
-        for (var date = startDate; date <= endDate; date = date.AddDays(1))
+        var requestedRange = EnumerateRange(startDate, endDate).ToHashSet();
+
+        if (!requestedRange.All(date => AvailableSlots.Contains(date)))
         {
-            if (!AvailableSlots.Contains(date))
-            {
-                return false;
-            }
+            return false;
         }
+
+        AvailableSlots.IntersectWith(requestedRange);
 
         return true;
     }
 
-    public IEnumerable<DateOnly> GetAvailableInRange(DateOnly startDate, DateOnly endDate)
+    private static IEnumerable<DateOnly> EnumerateRange(DateOnly start, DateOnly end)
     {
-        for (var date = startDate; date <= endDate; date = date.AddDays(1))
+        for (var date = start; date <= end; date = date.AddDays(1))
         {
-            if (AvailableSlots.Contains(date))
-            {
-                yield return date;
-            }
+            yield return date;
         }
     }
 }
